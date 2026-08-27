@@ -27,16 +27,17 @@ body {
 .wrap {
   max-width: 480px;
   margin: 0 auto;
+  position: relative;
 }
 
 header {
   text-align: center;
-  margin: 12px 0 20px;
+  margin: 2px 0 12px;
 }
 
 header .brand-mark {
-  margin: 0 0 6px;
-  font-size: 0.75rem;
+  margin: 0 0 3px;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   color: var(--accent);
@@ -44,14 +45,14 @@ header .brand-mark {
 }
 
 header h1 {
-  font-size: 1.5rem;
-  margin: 0 0 4px;
+  font-size: 1.3rem;
+  margin: 0 0 2px;
 }
 
 header .sub {
   color: var(--muted);
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 .banner {
@@ -151,12 +152,12 @@ header .sub {
 form {
   background: var(--card);
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .field {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .field label {
@@ -170,7 +171,7 @@ form {
 .field input:not([type="checkbox"]),
 .field select {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 13px;
   font-size: 1rem;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -199,13 +200,13 @@ form {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .quick-options.hidden { display: none; }
 
 .quick-option {
-  padding: 7px 14px;
+  padding: 6px 13px;
   font-size: 0.85rem;
   font-weight: 500;
   border: 1px solid var(--border);
@@ -362,16 +363,32 @@ button.btn-secondary:hover { background: rgba(107, 114, 128, 0.1); }
 @media (min-width: 900px) {
   .wrap { max-width: 640px; }
 
+  header {
+    margin: 0 0 8px;
+    padding-top: 2px;
+  }
+
+  form { padding: 12px 18px; }
+
   .field:not(.field-checkbox) {
     display: grid;
     grid-template-columns: 150px 1fr;
     column-gap: 18px;
     align-items: start;
+    margin-bottom: 8px;
   }
 
   .field:not(.field-checkbox) label {
     margin-bottom: 0;
-    padding-top: 12px;
+    padding-top: 10px;
+  }
+
+  /* Build tag moves up beside the header instead of taking its own row. */
+  .build-tag {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
   }
 }
 
@@ -407,10 +424,17 @@ button.btn-secondary:hover { background: rgba(107, 114, 128, 0.1); }
 .build-tag {
   text-align: center;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.03em;
-  margin: 14px 0 0;
-  opacity: 0.7;
+  margin: 0 0 4px;
+  opacity: 0.6;
+}
+
+/* Stock code is still looked up and sent with every submission — it's just
+   not shown in the form itself, since it's not something the person
+   filling it in needs to see or check. */
+#stockcode-field {
+  display: none !important;
 }
 
 button#submit-btn {
