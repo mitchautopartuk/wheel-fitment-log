@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Wheel Fitment Log</title>
+<meta name="theme-color" content="#37745b">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="style.css?v=20260827-6">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="brand-mark">AUTOPART</p>
+      <h1>Wheel Fitment Log</h1>
+    </header>
+
+    <p class="logger-badge hidden" id="logger-badge">
+      Logging as <strong id="logger-name-display"></strong> ·
+      <button type="button" id="logger-change-btn" class="link-btn">not you?</button>
+    </p>
+
+    <div id="status-banner" class="banner hidden"></div>
+
+    <form id="fitment-form" autocomplete="off">
+
+      <div class="field">
+        <label for="country">Country</label>
+        <div class="combobox">
+          <input type="text" id="country" placeholder="Type to search..." autocomplete="off" required value="United Kingdom">
+          <ul class="combobox-list" id="country-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="country-quick"></div>
+      </div>
+
+      <div class="field">
+        <label for="manufacturer">Car Manufacturer</label>
+        <div class="combobox">
+          <input type="text" id="manufacturer" placeholder="Type to search..." autocomplete="off" required>
+          <ul class="combobox-list" id="manufacturer-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="manufacturer-quick"></div>
+      </div>
+
+      <div class="field">
+        <label for="model">Model</label>
+        <div class="combobox">
+          <input type="text" id="model" placeholder="Choose manufacturer first..." autocomplete="off" required>
+          <ul class="combobox-list" id="model-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="model-quick"></div>
+      </div>
+
+      <div class="field">
+        <label for="year">Year</label>
+        <div class="combobox">
+          <input type="text" id="year" placeholder="Type to search..." autocomplete="off" inputmode="numeric" required>
+          <ul class="combobox-list" id="year-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="year-quick"></div>
+      </div>
+
+      <div class="field">
+        <label>Wheel Brand</label>
+        <div class="quick-options" id="wheel-brand-quick"></div>
+      </div>
+
+      <div class="field">
+        <label for="design">Design</label>
+        <div class="combobox">
+          <input type="text" id="design" placeholder="Choose brand first..." autocomplete="off" required disabled>
+          <ul class="combobox-list" id="design-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="design-quick"></div>
+      </div>
+
+      <div class="field">
+        <label for="size">Size</label>
+        <div class="combobox">
+          <input type="text" id="size" placeholder="Choose design first..." autocomplete="off" required disabled>
+          <ul class="combobox-list" id="size-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="size-quick"></div>
+      </div>
+
+      <div class="field">
+        <label for="colour">Colour / Finish</label>
+        <div class="combobox">
+          <input type="text" id="colour" placeholder="Choose size first..." autocomplete="off" required disabled>
+          <ul class="combobox-list" id="colour-suggestions" role="listbox"></ul>
+        </div>
+        <div class="quick-options hidden" id="colour-quick"></div>
+      </div>
+
+      <div class="field field-checkbox">
+        <label class="checkbox-label">
+          <input type="checkbox" id="staggered">
+          <span>Staggered fitment (different front/rear sizes)</span>
+        </label>
+      </div>
+
+      <div class="field stockcode-field hidden" id="stockcode-field">
+        <label>Stock code</label>
+        <div class="stockcode-value" id="stockcode-value">—</div>
+      </div>
+
+      <div class="button-row">
+        <button type="button" id="clear-btn" class="btn-secondary">Clear form</button>
+        <button type="submit" id="submit-btn">Log this fitment</button>
+      </div>
+    </form>
+
+    <p class="build-tag">Build 2026-08-27.6</p>
+  </div>
+
+  <!-- Floating photo — fixed in place, never pushes the form down. Tap to enlarge. -->
+  <button type="button" class="photo-thumb hidden" id="photo-preview" aria-label="View wheel photo, larger">
+    <img id="design-photo" alt="Wheel design preview">
+  </button>
+
+  <div class="photo-lightbox hidden" id="photo-lightbox">
+    <img id="design-photo-large" alt="Wheel design preview, enlarged">
+  </div>
+
+  <!-- One-time-per-device prompt: since everyone shares the same login,
+       this is how a submission gets tagged with who actually logged it. -->
+  <div class="name-modal hidden" id="name-modal">
+    <div class="name-modal-box">
+      <h2>Who's logging fitments on this computer?</h2>
+      <p>This is a one-time setup for this device — enter your name once and every submission from here is tagged with it automatically. You won't be asked again unless you change it.</p>
+      <input type="text" id="logger-name-input" placeholder="Your name" autocomplete="off">
+      <div class="name-modal-actions">
+        <button type="button" id="logger-name-cancel" class="btn-secondary hidden">Cancel</button>
+        <button type="button" id="logger-name-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=20260827-6"></script>
+</body>
+</html>

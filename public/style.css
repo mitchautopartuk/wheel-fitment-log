@@ -1,0 +1,451 @@
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --text: #1c1f26;
+  --muted: #6b7280;
+  --border: #dde1e6;
+  --accent: #37745b;
+  --accent-hover: #2d5f4a;
+  --ok-bg: #e6f6ea;
+  --ok-text: #146c2e;
+  --err-bg: #fdecec;
+  --err-text: #a3221c;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.wrap {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin: 12px 0 20px;
+}
+
+header .brand-mark {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  margin: 0 0 4px;
+}
+
+header .sub {
+  color: var(--muted);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.banner {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.banner.ok { background: var(--ok-bg); color: var(--ok-text); }
+.banner.err { background: var(--err-bg); color: var(--err-text); }
+.hidden { display: none !important; }
+
+/* "Logging as ___" indicator, shown once a device has a name set. */
+.logger-badge {
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+.logger-badge strong { color: var(--text); }
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.82rem;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* First-run / "not you?" name prompt. */
+.name-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.name-modal-box {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.name-modal-box h2 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.name-modal-box p {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.name-modal-box input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  background: #fff;
+  margin-bottom: 14px;
+}
+
+.name-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.name-modal-actions #logger-name-save {
+  flex: 1;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.name-modal-actions #logger-name-save:hover { background: var(--accent-hover); }
+.name-modal-actions .btn-secondary { flex: 1; }
+
+form {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.field input:not([type="checkbox"]),
+.field select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  appearance: none;
+}
+
+.field select:disabled,
+.field input:not([type="checkbox"]):disabled {
+  background: #f0f1f3;
+  color: var(--muted);
+}
+
+.field input:not([type="checkbox"]):focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+}
+
+/* Quick-pick buttons — shown under a field instead of/alongside the combobox
+   when there are only a handful of valid options (2–4), so a mouse user can
+   click straight to an answer instead of typing. Hidden entirely otherwise. */
+.quick-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.quick-options.hidden { display: none; }
+
+.quick-option {
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.quick-option:hover { border-color: var(--accent); }
+.quick-option:active { background: rgba(55, 116, 91, 0.14); }
+
+/* Filled state for the currently-selected option in a quick-pick row. */
+.quick-option.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.quick-option.active:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+/* Combobox (Country / Manufacturer / Model) — custom dropdown so Tab/Enter
+   can accept the highlighted suggestion, which native <datalist> can't do. */
+.combobox {
+  position: relative;
+}
+
+.combobox-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+  z-index: 30;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: none;
+}
+
+.combobox-list.open { display: block; }
+
+.combobox-list li {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.combobox-list li.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.combobox-list li:hover:not(.active) {
+  background: rgba(26, 86, 219, 0.12);
+}
+
+/* Staggered checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* Clear + Submit button row */
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+
+.button-row #submit-btn { flex: 2; }
+.button-row #clear-btn { flex: 1; }
+
+button.btn-secondary {
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+button.btn-secondary:hover { background: rgba(107, 114, 128, 0.1); }
+
+/* Floating photo — fixed in place so it never pushes form fields down.
+   Modest corner bubble on mobile (there's no safe fixed spot on a narrow
+   screen that never overlaps something while scrolling, so it stays
+   small and near the top); a much bigger side panel on wide screens,
+   where there's room beside the form for it to sit without ever
+   overlapping anything. Tap to see it full-size either way. */
+.photo-thumb {
+  position: fixed;
+  top: 64px;
+  right: 14px;
+  width: 92px;
+  height: 92px;
+  padding: 0;
+  border-radius: 12px;
+  border: 2px solid var(--card);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.24);
+  z-index: 40;
+  cursor: pointer;
+  background: var(--card);
+  transition: transform 0.12s;
+}
+
+.photo-thumb:hover { transform: scale(1.05); }
+.photo-thumb:active { transform: scale(0.97); }
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (min-width: 900px) {
+  .photo-thumb {
+    top: 50%;
+    right: 32px;
+    width: 240px;
+    height: 240px;
+    transform: translateY(-50%);
+  }
+  .photo-thumb:hover { transform: translateY(-50%) scale(1.04); }
+  .photo-thumb:active { transform: translateY(-50%) scale(0.97); }
+}
+
+/* Wider form + labels beside their fields instead of above them — saves
+   vertical space now that some fields can also show a row of quick-pick
+   buttons underneath. Mobile keeps labels stacked above (screen's too
+   narrow for a side column to be worth it). */
+@media (min-width: 900px) {
+  .wrap { max-width: 640px; }
+
+  .field:not(.field-checkbox) {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    column-gap: 18px;
+    align-items: start;
+  }
+
+  .field:not(.field-checkbox) label {
+    margin-bottom: 0;
+    padding-top: 12px;
+  }
+}
+
+/* Full-size view on tap */
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 60;
+  cursor: pointer;
+}
+
+.photo-lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.stockcode-field .stockcode-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: #f0f1f3;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.build-tag {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  margin: 14px 0 0;
+  opacity: 0.7;
+}
+
+button#submit-btn {
+  padding: 14px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+button#submit-btn:hover:not(:disabled) { background: var(--accent-hover); }
+button#submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --card: #1e2127;
+    --text: #eceef1;
+    --muted: #9aa0aa;
+    --border: #33373f;
+    --ok-bg: #113322;
+    --ok-text: #6fd693;
+    --err-bg: #3a1616;
+    --err-text: #ff9b93;
+  }
+  .field input, .field select { background: #23262d; }
+  .field select:disabled, .field input:disabled { background: #1a1c21; }
+  .stockcode-field .stockcode-value { background: #23262d; }
+  .combobox-list li:hover:not(.active) { background: rgba(255,255,255,0.08); }
+  button.btn-secondary:hover { background: rgba(255,255,255,0.08); }
+  .quick-option { background: #23262d; }
+  .quick-option.active { background: var(--accent); }
+  .name-modal-box input { background: #23262d; }
+}
