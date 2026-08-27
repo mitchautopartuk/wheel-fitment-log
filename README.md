@@ -1,4 +1,4 @@
-# Wheel Fitment Log
+# Wheel Fitment Logging
 
 A mobile-friendly fitment logging app, replacing the old Google Form.
 
