@@ -49,6 +49,12 @@
     loggerNameInput: document.getElementById("logger-name-input"),
     loggerNameSave: document.getElementById("logger-name-save"),
     loggerNameCancel: document.getElementById("logger-name-cancel"),
+    recentToggleBtn: document.getElementById("recent-toggle-btn"),
+    recentPanel: document.getElementById("recent-panel"),
+    recentLoading: document.getElementById("recent-loading"),
+    recentEmpty: document.getElementById("recent-empty"),
+    recentError: document.getElementById("recent-error"),
+    recentList: document.getElementById("recent-list"),
   };
 
   const LOGGER_STORAGE_KEY = "fitment_logger_name";
@@ -560,6 +566,87 @@
     els.loggerBadge.classList.toggle("hidden", !name);
   }
 
+  // ---------- Recent uploads (read back from the sheet, on demand) ----------
+  // Lets someone check the last few things THEY logged, straight from the
+  // real sheet, in case they've forgotten or aren't sure it went through.
+  function formatRecentTime(isoString) {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString || "";
+    return d.toLocaleString(undefined, {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function renderRecentUploads(entries) {
+    els.recentList.innerHTML = "";
+    entries.forEach((row) => {
+      const li = document.createElement("li");
+      const vehicleBits = [row.manufacturer, row.model, row.year].filter(Boolean).join(" ");
+      const wheelBits = [row.brand, row.design, row.size, row.colour].filter(Boolean).join(" · ");
+      li.innerHTML =
+        `<div class="recent-vehicle"></div>` +
+        `<div class="recent-wheel"></div>` +
+        `<div class="recent-time"></div>`;
+      li.querySelector(".recent-vehicle").textContent = vehicleBits || "(vehicle not recorded)";
+      li.querySelector(".recent-wheel").textContent = wheelBits || "(wheel not recorded)";
+      li.querySelector(".recent-time").textContent = formatRecentTime(row.timestamp);
+      els.recentList.appendChild(li);
+    });
+  }
+
+  async function loadRecentUploads() {
+    els.recentLoading.classList.remove("hidden");
+    els.recentEmpty.classList.add("hidden");
+    els.recentError.classList.add("hidden");
+    els.recentList.classList.add("hidden");
+
+    const name = getLoggerName();
+    if (!name) {
+      els.recentLoading.classList.add("hidden");
+      els.recentError.classList.remove("hidden");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/recent?name=" + encodeURIComponent(name));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Server error");
+
+      els.recentLoading.classList.add("hidden");
+      const entries = data.recent || [];
+      if (!entries.length) {
+        els.recentEmpty.classList.remove("hidden");
+      } else {
+        renderRecentUploads(entries);
+        els.recentList.classList.remove("hidden");
+      }
+    } catch (err) {
+      console.warn("Couldn't load recent uploads:", err);
+      els.recentLoading.classList.add("hidden");
+      els.recentError.classList.remove("hidden");
+    }
+  }
+
+  function openRecentPanel() {
+    els.recentPanel.classList.remove("hidden");
+    loadRecentUploads();
+  }
+
+  function closeRecentPanel() {
+    els.recentPanel.classList.add("hidden");
+  }
+
+  function toggleRecentPanel() {
+    if (els.recentPanel.classList.contains("hidden")) {
+      openRecentPanel();
+    } else {
+      closeRecentPanel();
+    }
+  }
+
   function openNameModal(prefill) {
     els.loggerNameInput.value = prefill || "";
     els.loggerNameCancel.classList.toggle("hidden", !prefill);
@@ -709,13 +796,27 @@
     els.photoPreview.addEventListener("click", openLightbox);
     els.photoLightbox.addEventListener("click", closeLightbox);
 
-    els.loggerChangeBtn.addEventListener("click", () => openNameModal(getLoggerName()));
+    els.loggerChangeBtn.addEventListener("click", () => {
+      closeRecentPanel();
+      openNameModal(getLoggerName());
+    });
     els.loggerNameSave.addEventListener("click", saveLoggerName);
     els.loggerNameCancel.addEventListener("click", closeNameModal);
     els.loggerNameInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
         saveLoggerName();
+      }
+    });
+
+    els.recentToggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleRecentPanel();
+    });
+    // Click anywhere outside the panel closes it.
+    document.addEventListener("click", (e) => {
+      if (!els.recentPanel.classList.contains("hidden") && !els.recentPanel.contains(e.target)) {
+        closeRecentPanel();
       }
     });
   }

@@ -9,20 +9,32 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
-<link rel="stylesheet" href="style.css?v=20260827-8">
+<link rel="stylesheet" href="style.css?v=20260827-9">
 </head>
 <body>
   <div class="wrap">
-    <p class="build-tag">Build 2026-08-27.8</p>
+    <p class="build-tag">Build 2026-08-27.9</p>
     <header>
       <p class="brand-mark">AUTOPART</p>
       <h1>Wheel Fitment Log</h1>
     </header>
 
-    <p class="logger-badge hidden" id="logger-badge">
+    <!-- A <div>, not a <p> — a <p> auto-closes as soon as a block-level
+         child (the dropdown panel) appears inside it, which silently
+         hoists the panel out of this wrapper and breaks its positioning. -->
+    <div class="logger-badge hidden" id="logger-badge">
       Logging as <strong id="logger-name-display"></strong> ·
-      <button type="button" id="logger-change-btn" class="link-btn">not you?</button>
-    </p>
+      <button type="button" id="logger-change-btn" class="link-btn">not you?</button> ·
+      <span class="recent-wrap">
+        <button type="button" id="recent-toggle-btn" class="link-btn">recent uploads</button>
+        <div class="recent-panel hidden" id="recent-panel">
+          <p class="recent-status" id="recent-loading">Loading…</p>
+          <p class="recent-status hidden" id="recent-empty">Nothing logged yet.</p>
+          <p class="recent-status hidden" id="recent-error">Couldn't load recent uploads.</p>
+          <ul class="recent-list hidden" id="recent-list"></ul>
+        </div>
+      </span>
+    </div>
 
     <div id="status-banner" class="banner hidden"></div>
 
@@ -146,6 +158,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=20260827-8"></script>
+  <script src="app.js?v=20260827-9"></script>
 </body>
 </html>

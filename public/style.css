@@ -86,6 +86,72 @@ header .sub {
   cursor: pointer;
 }
 
+/* "Recent uploads" dropdown — shows the last few things this person
+   logged (fetched live from the sheet), so they can check without
+   leaving the app or asking around. */
+.recent-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.recent-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  /* Anchored to the trigger's right edge rather than centred — the
+     trigger usually sits right-of-centre in the badge line, so a
+     centred panel can run off the edge of narrow screens. */
+  right: -8px;
+  width: 280px;
+  max-width: min(280px, calc(100vw - 32px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+  padding: 10px;
+  z-index: 50;
+  text-align: left;
+}
+
+.recent-status {
+  margin: 4px 2px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.recent-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.recent-list li {
+  padding: 8px 8px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.recent-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.recent-list .recent-vehicle {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.recent-list .recent-wheel {
+  color: var(--text);
+}
+
+.recent-list .recent-time {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
 /* First-run / "not you?" name prompt. */
 .name-modal {
   position: fixed;

@@ -31,6 +31,7 @@ Since everyone shares the same login, the app can't tell people apart from the p
 - That name is saved locally in that browser (`localStorage`) — not sent anywhere until the next actual submission — and every submission from that device from then on is tagged with it automatically in the "Logged By" column.
 - Nobody has to type or pick their name again after that. A small "Logging as [Name] · not you?" line appears above the form as a reminder; clicking "not you?" lets someone correct it (e.g. a shared machine, or it was set up wrong).
 - This is purely for attribution/convenience, not a security feature — anyone can click "not you?" and change it. It just answers "who logged this fitment" without adding individual logins.
+- Next to the badge is a **"recent uploads"** link — it opens a small dropdown showing the last few fitments that person logged, read live from the actual sheet (via `api/recent.js`, which reuses the same service account as the write side, read-only). It's there so someone can double-check they actually submitted something, without leaving the app or scrolling through the sheet.
 
 ## Deploying (Vercel, free tier)
 
