@@ -296,6 +296,27 @@
       setTimeout(close, 100);
     });
 
+    // Dropdown-arrow button — lets someone browse and click the full list
+    // of options instead of typing, without changing how typing itself
+    // works. Same "mousedown, not click" trick as the list items so the
+    // input doesn't blur (and auto-close the list) before it opens.
+    const toggleBtn = inputEl.parentElement.querySelector(".combobox-toggle");
+    if (toggleBtn) {
+      toggleBtn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+      });
+      toggleBtn.addEventListener("click", () => {
+        if (inputEl.disabled) return;
+        if (listEl.classList.contains("open")) {
+          close();
+          return;
+        }
+        items = getOptions();
+        activeIndex = -1;
+        draw();
+      });
+    }
+
     return { close };
   }
 

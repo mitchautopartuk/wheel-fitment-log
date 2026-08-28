@@ -234,6 +234,39 @@ form {
   position: relative;
 }
 
+/* The typing behaviour is unchanged — this just adds a click-to-browse
+   option for anyone who'd rather see the full list than type. */
+.combobox input {
+  padding-right: 34px;
+}
+
+.combobox-toggle {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.combobox-toggle:hover { background: rgba(107, 114, 128, 0.14); color: var(--text); }
+
+.combobox input:disabled ~ .combobox-toggle {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .combobox-list {
   position: absolute;
   top: calc(100% + 4px);
@@ -472,4 +505,5 @@ button#submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
   .quick-option { background: #23262d; }
   .quick-option.active { background: var(--accent); }
   .name-modal-box input { background: #23262d; }
+  .combobox-toggle:hover { background: rgba(255, 255, 255, 0.1); }
 }
