@@ -164,10 +164,14 @@
     });
   }
 
+  // Covers classics too, not just recent registrations — 1950 comfortably
+  // predates anything colleagues have flagged needing to log.
+  const EARLIEST_YEAR = 1950;
+
   function populateYears() {
     const currentYear = new Date().getFullYear();
     validYears = [];
-    for (let y = currentYear + 1; y >= currentYear - 29; y--) {
+    for (let y = currentYear + 1; y >= EARLIEST_YEAR; y--) {
       validYears.push(String(y));
     }
     refreshYearQuick();
