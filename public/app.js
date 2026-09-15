@@ -65,6 +65,15 @@
   let catalogueRows = []; // parsed CSV rows as objects
   let currentSelection = { brand: null, design: null, sizeKey: null, colour: null };
 
+  // { Make: { Model: [{ yf, yt, pcd, bore }, ...] } } — sourced from
+  // wheel-size.com, used only to narrow down Design/Size/Colour once a
+  // vehicle is known. Never blocks anything; see resolveVehicleFitment().
+  let fitmentData = {};
+  // Resolves to { pcd, bore } once Manufacturer + Model + Year all match a
+  // single, unambiguous fitment; otherwise null, which means "don't
+  // filter" — every wheel stays visible, same as before this existed.
+  let vehicleFitment = null;
+
   // ---------- CSV parsing (handles quoted fields with embedded commas) ----------
   function parseCSV(text) {
     const rows = [];
@@ -144,6 +153,19 @@
     refreshManufacturerQuick();
   }
 
+  // Fitment lookup (PCD/bore by make+model+year) — separate from the
+  // manufacturer/model list so a slow or failed fetch here never blocks
+  // the vehicle fields themselves from working; it only means no
+  // narrowing happens until it loads (or at all, if it never does).
+  async function loadFitmentData() {
+    try {
+      const res = await fetch("data/fitment.json");
+      fitmentData = await res.json();
+    } catch (err) {
+      console.warn("Couldn't load fitment data (Design/Size/Colour just won't be narrowed by vehicle):", err);
+    }
+  }
+
   function refreshCountryQuick() {
     renderQuickOptions(els.countryQuick, countries, els.country.value.trim(), (v) => {
       els.country.value = v;
@@ -160,8 +182,13 @@
   function refreshYearQuick() {
     renderQuickOptions(els.yearQuick, validYears, els.year.value.trim(), (v) => {
       els.year.value = v;
-      refreshYearQuick();
+      onYearChanged();
     });
+  }
+
+  function onYearChanged() {
+    refreshYearQuick();
+    onVehicleFieldChanged();
   }
 
   // Covers classics too, not just recent registrations — 1950 comfortably
@@ -348,23 +375,69 @@
   // from the brand list entirely so it can't be picked.
   const EXCLUDED_BRANDS = ["axe forged"];
   function brandOptions() {
+    // Deliberately NOT filtered by vehicle fitment — all real brands stay
+    // visible always, same as before. Only Design/Size/Colour narrow down.
     return uniqueSorted(catalogueRows.map((r) => r.BRAND)).filter(
       (b) => !EXCLUDED_BRANDS.includes(b.trim().toLowerCase())
     );
   }
+
+  // ---------- Vehicle fitment (PCD/bore) — narrows Design/Size/Colour ----------
+  // Works off wheel-size.com data (public/data/fitment.json). Only ever
+  // narrows the list; if the vehicle isn't known, its years are
+  // ambiguous (some vans genuinely come in two bolt patterns under the
+  // same badge/year), or the data hasn't loaded, everything stays visible
+  // exactly as it did before this existed — never a hard block.
+  function resolveVehicleFitment() {
+    vehicleFitment = null;
+    const make = els.manufacturer.value.trim();
+    const model = els.model.value.trim();
+    const year = parseInt(els.year.value.trim(), 10);
+    if (!make || !model || !year) return;
+
+    const generations = (fitmentData[make] && fitmentData[make][model]) || [];
+    const matches = generations.filter((g) => year >= g.yf && year <= g.yt);
+    if (!matches.length) return;
+
+    const distinctPcds = uniqueSorted(matches.map((g) => g.pcd));
+    if (distinctPcds.length !== 1) return; // ambiguous for this year — don't filter
+
+    vehicleFitment = { pcd: distinctPcds[0] };
+  }
+
+  // A wheel with no "PCD List" data at all is never excluded by this —
+  // only a wheel whose listed PCDs are known and don't include the
+  // vehicle's is filtered out, so a gap in the catalogue's own data can
+  // never wrongly hide a wheel.
+  function wheelFitsVehicle(row) {
+    if (!vehicleFitment) return true;
+    const pcdList = (row["PCD List"] || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!pcdList.length) return true;
+    return pcdList.includes(vehicleFitment.pcd);
+  }
+
   function designOptions(brand) {
-    return brand ? uniqueSorted(catalogueRows.filter((r) => r.BRAND === brand).map((r) => r.DESIGN)) : [];
+    return brand
+      ? uniqueSorted(catalogueRows.filter((r) => r.BRAND === brand && wheelFitsVehicle(r)).map((r) => r.DESIGN))
+      : [];
   }
   function sizeOptionsFor(brand, design) {
     return brand && design
-      ? uniqueSorted(catalogueRows.filter((r) => r.BRAND === brand && r.DESIGN === design).map(sizeKey))
+      ? uniqueSorted(
+          catalogueRows
+            .filter((r) => r.BRAND === brand && r.DESIGN === design && wheelFitsVehicle(r))
+            .map(sizeKey)
+        )
       : [];
   }
   function colourOptionsFor(brand, design, sizeK) {
     return brand && design && sizeK
       ? uniqueSorted(
           catalogueRows
-            .filter((r) => r.BRAND === brand && r.DESIGN === design && sizeKey(r) === sizeK)
+            .filter((r) => r.BRAND === brand && r.DESIGN === design && sizeKey(r) === sizeK && wheelFitsVehicle(r))
             .map((r) => r["COLOUR COMBINED"])
         )
       : [];
@@ -431,6 +504,16 @@
     if (currentSelection.brand && currentSelection.design) showPhotoForBrandDesign();
     else hidePhoto();
     applySizeStage();
+  }
+
+  // Manufacturer, Model, or Year changed — re-resolve what the vehicle's
+  // bolt pattern narrows Design/Size/Colour down to, and re-derive them.
+  // A brand already picked keeps its selection; Design/Size/Colour just
+  // get re-checked against the (possibly new) filter, same as when brand
+  // itself changes.
+  function onVehicleFieldChanged() {
+    resolveVehicleFitment();
+    applyDesignStage();
   }
 
   function onDesignChanged() {
@@ -504,7 +587,8 @@
         r.BRAND === currentSelection.brand &&
         r.DESIGN === currentSelection.design &&
         sizeKey(r) === currentSelection.sizeKey &&
-        (r["COLOUR COMBINED"] || "") === currentSelection.colour
+        (r["COLOUR COMBINED"] || "") === currentSelection.colour &&
+        wheelFitsVehicle(r)
     );
   }
 
@@ -755,8 +839,13 @@
     const options = manufacturerData[name] || [];
     renderQuickOptions(els.modelQuick, options, els.model.value.trim(), (v) => {
       els.model.value = v;
-      refreshModelQuick();
+      onModelChanged();
     });
+  }
+
+  function onModelChanged() {
+    refreshModelQuick();
+    onVehicleFieldChanged();
   }
 
   function onManufacturerChanged() {
@@ -768,6 +857,7 @@
     els.model.placeholder = known ? "Type to search..." : (name ? "Type model (free text)" : "Choose manufacturer first...");
     refreshManufacturerQuick();
     refreshModelQuick();
+    onVehicleFieldChanged();
   }
 
   function setUpCombobox() {
@@ -775,14 +865,14 @@
     // Country defaults to "United Kingdom" — select the text on focus so
     // the other ~10% of entries can just start typing to replace it.
     els.country.addEventListener("focus", () => els.country.select());
-    createCombobox(els.year, els.yearSuggestions, () => validYears, () => refreshYearQuick());
+    createCombobox(els.year, els.yearSuggestions, () => validYears, onYearChanged);
 
     createCombobox(els.manufacturer, els.manufacturerSuggestions, () => Object.keys(manufacturerData).sort(), onManufacturerChanged);
 
     createCombobox(els.model, els.modelSuggestions, () => {
       const name = els.manufacturer.value.trim();
       return manufacturerData[name] || [];
-    }, () => refreshModelQuick());
+    }, onModelChanged);
 
     createCombobox(els.design, els.designSuggestions, () => designOptions(currentSelection.brand), onDesignChanged);
     createCombobox(els.size, els.sizeSuggestions, () => sizeOptionsFor(currentSelection.brand, currentSelection.design), onSizeChanged);
@@ -845,7 +935,7 @@
       openNameModal();
     }
 
-    await Promise.all([loadCountries(), loadManufacturers(), loadCatalogue()]);
+    await Promise.all([loadCountries(), loadManufacturers(), loadCatalogue(), loadFitmentData()]);
     setInterval(loadCatalogue, REFRESH_INTERVAL_MS);
   }
 

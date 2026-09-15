@@ -9,8 +9,25 @@ A mobile-friendly fitment logging app, replacing the old Google Form.
 
 - `public/` — the front-end (plain HTML/CSS/JS, no build step, no frameworks)
 - `api/submit.js` — a serverless function that appends each submission to the Google Sheet
-- `data/manufacturers.json` — cleaned car manufacturer/model dataset (bundled, no API)
+- `api/recent.js` — reads back a person's last few submissions for the "recent uploads" dropdown
+- `data/manufacturers.json` — car make/model list, sourced from wheel-size.com (135 makes, ~1,980 models)
+- `data/fitment.json` — bolt pattern (PCD) by make/model/year, from the same source — see "Narrowing wheel options by vehicle" below
 - `data/countries.json` — UK + European countries
+
+## Vehicle data (wheel-size.com)
+
+The Manufacturer/Model list and the PCD narrowing (below) are both built from a bulk pull of `api.wheel-size.com`, done separately (that puller lives in `../Wheel-Size Data`, a sibling folder shared across projects — not part of this repo). To refresh either file here with a newer pull, re-run the export step described in that folder's own README and drop the two resulting files back into `public/data/`.
+
+## Narrowing wheel options by vehicle
+
+Once Country, Manufacturer, Model and Year all resolve to a single, unambiguous bolt pattern (PCD) in `data/fitment.json`, the Design/Size/Colour lists quietly narrow to only the wheels in the live catalogue whose `PCD List` column includes that PCD — Wheel Brand is untouched, all the real brands stay visible always, same as before.
+
+This is a soft narrowing, never a hard block:
+
+- An unrecognised, free-typed, or not-yet-in-the-data vehicle just means no narrowing happens — every wheel stays visible, exactly like before this existed.
+- A handful of vehicles (mostly vans/pickups) genuinely came from the factory in more than one bolt pattern under the same badge and year — the data can't tell them apart, so those are deliberately left unfiltered rather than guessed at.
+- A wheel with a blank `PCD List` in the catalogue is never hidden by this — only a wheel whose PCDs are known and don't include the vehicle's gets filtered out.
+- Hub bore (also in the data) is resolved but **not** used to filter — a too-small bore is a real blocker, but a too-large one is routinely solved with a spigot ring, so filtering on it risked hiding perfectly sellable combinations. Worth revisiting if that assumption's wrong for how you actually sell.
 
 ## One-time setup already done for you
 
